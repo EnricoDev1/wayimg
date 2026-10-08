@@ -1,0 +1,6 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+BreakBeforeBraces: Linux
+AlwaysBreakAfterReturnType: All
+AlignConsecutiveMacros: true
+AlignEscapedNewlines: Left
