@@ -205,9 +205,9 @@ static const struct wl_registry_listener registry_listener = {
 };
 
 static void
-load_image(const char *path)
+load_image(FILE *fp)
 {
-    state.img.pixels = stbi_load(path, &state.img.width, &state.img.heigth,
+    state.img.pixels = stbi_load_from_file(fp, &state.img.width, &state.img.heigth,
                                  &state.img.channels, 4);
     if (state.img.pixels == NULL)
         fatal("Unable to load image");
@@ -261,13 +261,31 @@ zwlr_setup()
     wl_surface_commit(state.wl_surface);
 }
 
+void exit_with_help(const char *progname) {
+    fatal("Usage: %s [image_path]   or   cmd | %s\n"
+      "If image_path is omitted, read from stdin.",
+      progname, progname);
+}
+
 int
 main(int argc, char **argv)
 {
-    if (argc != 2)
-        fatal("Usage: %s <image_path>", argv[0]);
+    FILE *in = NULL;
+    if (argc > 2)
+        exit_with_help(argv[0]);
+    
+    if (argc == 1) {
+        if (isatty(STDIN_FILENO))
+            exit_with_help(argv[0]);
+        in = stdin;
+    } else {
+        in = fopen(argv[1], "rb");
+    }
 
-    load_image(argv[1]);
+    if (!in)
+        exit_with_help(argv[0]);
+    
+    load_image(in);
     wl_setup();
     zwlr_setup();
 
